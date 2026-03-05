@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WordVault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#08080b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WordVault">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#08080b;--s1:#0f0f14;--s2:#161620;--s3:#1e1e2a;--s4:#252533;
+  --bd:#2a2a3c;--bd2:#383850;
+  --tx:#ededf5;--tx2:#9898b8;--tx3:#55556e;
+  --g:#22d473;--gbg:rgba(34,212,115,.09);--gbd:rgba(34,212,115,.22);
+  --y:#f5c518;--ybg:rgba(245,197,24,.09);--ybd:rgba(245,197,24,.22);
+  --o:#f97316;--obg:rgba(249,115,22,.09);--obd:rgba(249,115,22,.22);
+  --r:#f04444;--rbg:rgba(240,68,68,.09);--rbd:rgba(240,68,68,.22);
+  --b:#4f8ef7;--bbg:rgba(79,142,247,.09);--bbd:rgba(79,142,247,.22);
+  --p:#a78bfa;--pbg:rgba(167,139,250,.09);--pbd:rgba(167,139,250,.22);
+  --rad:10px;--rad-s:6px;--rad-xs:4px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.app{display:flex;flex-direction:column;min-height:100dvh}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.login-box{width:100%;max-width:360px}
+.login-logo{font-size:2.2rem;font-weight:800;letter-spacing:-.04em;margin-bottom:.3rem}
+.login-logo em{color:var(--p);font-style:normal}
+.login-sub{font-size:.82rem;color:var(--tx3);margin-bottom:2rem;line-height:1.5}
+.login-label{font-size:.65rem;font-weight:700;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;margin-bottom:.35rem;display:block}
+.login-input{width:100%;background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:.7rem .9rem;border-radius:var(--rad-s);font-family:'JetBrains Mono',monospace;font-size:.95rem;outline:none;transition:border-color .18s;letter-spacing:.04em}
+.login-input:focus{border-color:var(--p)}
+.login-btn{width:100%;margin-top:.75rem;padding:.7rem;background:var(--p);color:#000;font-family:'Outfit',sans-serif;font-weight:800;font-size:.9rem;border:none;border-radius:var(--rad-s);cursor:pointer;transition:opacity .15s}
+.login-btn:hover{opacity:.85}
+.login-err{font-size:.75rem;color:var(--r);margin-top:.5rem;display:none}
+.login-hint{font-size:.7rem;color:var(--tx3);margin-top:1rem;text-align:center;line-height:1.6}
+
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:300;height:52px;padding:0 1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:rgba(8,8,11,.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--bd)}
+.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.04em}
+.logo em{color:var(--p);font-style:normal}
+.hdr-right{display:flex;align-items:center;gap:.5rem}
+.user-chip{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--tx2);background:var(--s2);border:1px solid var(--bd);border-radius:50px;padding:.18rem .6rem;cursor:pointer}
+.sync{display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--tx3)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--tx3);flex-shrink:0;transition:background .3s}
+.dot.ok{background:var(--g)}.dot.err{background:var(--r)}.dot.load{background:var(--y)}
+.theme-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:var(--s2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .18s}
+.theme-btn:hover{border-color:var(--bd2)}
+
+/* NAV */
+.nav{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:52px;z-index:200}
+.nav::-webkit-scrollbar{display:none}
+.nb{flex-shrink:0;height:42px;padding:0 1.05rem;border:none;background:transparent;color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:color .18s,border-color .18s;white-space:nowrap}
+.nb.on{color:var(--tx);border-bottom-color:var(--p)}
+.nb:hover:not(.on){color:var(--tx2)}
+
+/* PAGES */
+.pg{display:none;padding:1.1rem 1rem;max-width:860px;margin:0 auto;width:100%}
+.pg.on{display:block}
+.sec{font-size:.63rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin-bottom:.7rem}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1rem}
+.empty{text-align:center;padding:3rem 1rem;color:var(--tx3);font-size:.85rem;line-height:1.8}
+.fg{display:flex;flex-direction:column;gap:.32rem}
+.fl{font-size:.65rem;font-weight:700;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase}
+input[type="text"],input[type="number"],input[type="email"],textarea,select{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:.52rem .7rem;border-radius:var(--rad-s);font-family:'Outfit',sans-serif;font-size:.84rem;outline:none;width:100%;transition:border-color .18s;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus,select:focus{border-color:var(--p)}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+option{background:var(--s2)}
+.frow{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap}
+.btn{padding:.52rem .95rem;border:none;border-radius:var(--rad-s);font-family:'Outfit',sans-serif;font-weight:700;font-size:.81rem;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--p);color:#000}.btn-p:hover{opacity:.85}
+.btn-s{background:var(--s3);color:var(--tx);border:1px solid var(--bd)}.btn-s:hover{border-color:var(--bd2)}
+.btn-d{background:var(--rbg);color:var(--r);border:1px solid var(--rbd)}
+.btn-g{background:var(--gbg);color:var(--g);border:1px solid var(--gbd)}
+.btn-sm{padding:.32rem .65rem;font-size:.7rem}
+.btn-full{width:100%}
+.tag{font-size:.62rem;font-weight:700;padding:.17rem .48rem;border-radius:var(--rad-xs);white-space:nowrap;display:inline-block}
+.tg{background:var(--gbg);color:var(--g);border:1px solid var(--gbd)}
+.ty{background:var(--ybg);color:var(--y);border:1px solid var(--ybd)}
+.to{background:var(--obg);color:var(--o);border:1px solid var(--obd)}
+.tr_{background:var(--rbg);color:var(--r);border:1px solid var(--rbd)}
+.tb_{background:var(--bbg);color:var(--b);border:1px solid var(--bbd)}
+.tp{background:var(--pbg);color:var(--p);border:1px solid var(--pbd)}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s2);border:1px solid var(--bd2);border-radius:50px;padding:.55rem 1.15rem;font-size:.78rem;font-weight:600;color:var(--tx);z-index:999;opacity:0;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s;white-space:nowrap;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.tg{color:var(--g);border-color:var(--gbd)}
+.toast.tr{color:var(--r);border-color:var(--rbd)}
+.divider{height:1px;background:var(--bd);margin:.85rem 0}
+
+/* WORD GRID */
+.word-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.word-pill{display:inline-flex;align-items:center;gap:.4rem;background:var(--s1);border:1px solid var(--bd);border-radius:50px;padding:.38rem .85rem;cursor:pointer;transition:all .18s;font-size:.84rem;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--tx)}
+.word-pill:hover{border-color:var(--pbd);background:var(--pbg);color:var(--p)}
+.word-pill .diff-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.word-pill.diff-easy .diff-dot{background:var(--g)}
+.word-pill.diff-medium .diff-dot{background:var(--y)}
+.word-pill.diff-hard .diff-dot{background:var(--r)}
+
+/* WORD CARD MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+@media(min-width:600px){.modal-overlay{align-items:center}}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad) var(--rad) 0 0;width:100%;max-width:560px;max-height:88dvh;overflow-y:auto;padding:1.25rem 1.25rem 2rem;transform:translateY(40px);transition:transform .28s cubic-bezier(.34,1.2,.64,1)}
+@media(min-width:600px){.modal{border-radius:var(--rad);transform:scale(.95)}}
+.modal-overlay.open .modal{transform:translateY(0)}
+@media(min-width:600px){.modal-overlay.open .modal{transform:scale(1)}}
+.modal-handle{width:36px;height:3px;background:var(--bd2);border-radius:2px;margin:0 auto .9rem;display:block}
+@media(min-width:600px){.modal-handle{display:none}}
+.modal-word{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--p);margin-bottom:.15rem;line-height:1.2}
+.modal-phonetic{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--tx3);margin-bottom:.7rem}
+.modal-pos{font-size:.7rem;font-weight:700;color:var(--b);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.modal-section{margin-bottom:.85rem}
+.modal-section-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:.35rem}
+.modal-meaning{font-size:.9rem;line-height:1.6;color:var(--tx)}
+.modal-example{font-size:.82rem;color:var(--tx2);font-style:italic;line-height:1.55;padding:.5rem .7rem;background:var(--s2);border-left:2px solid var(--p);border-radius:0 var(--rad-s) var(--rad-s) 0;margin-top:.3rem}
+.syn-list{display:flex;flex-wrap:wrap;gap:.3rem}
+.syn-chip{font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.2rem .55rem;background:var(--s2);border:1px solid var(--bd);border-radius:50px;color:var(--tx2);cursor:pointer;transition:all .15s}
+.syn-chip:hover{border-color:var(--pbd);color:var(--p)}
+.modal-notes{font-size:.82rem;color:var(--tx2);line-height:1.55;padding:.5rem .7rem;background:var(--s2);border-radius:var(--rad-s)}
+.modal-footer{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
+.modal-date{font-size:.65rem;color:var(--tx3);margin-top:.6rem;font-family:'JetBrains Mono',monospace}
+.quiz-score-badge{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.22rem .6rem;border-radius:50px;border:1px solid var(--bd);background:var(--s2);color:var(--tx2)}
+
+/* ADD WORD */
+.add-form{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1.1rem;margin-bottom:.8rem}
+.add-word-input{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:.04em}
+.fetch-bar{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;margin-bottom:.9rem}
+.fetch-status{font-size:.72rem;color:var(--tx3);flex:1}
+.diff-row{display:flex;gap:.4rem}
+.diff-btn{flex:1;padding:.4rem .5rem;border:1px solid var(--bd);border-radius:var(--rad-s);background:var(--s2);color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
+.diff-btn.on-easy{background:var(--gbg);border-color:var(--gbd);color:var(--g)}
+.diff-btn.on-medium{background:var(--ybg);border-color:var(--ybd);color:var(--y)}
+.diff-btn.on-hard{background:var(--rbg);border-color:var(--rbd);color:var(--r)}
+
+/* SEARCH & FILTER */
+.search-bar{display:flex;gap:.4rem;margin-bottom:.75rem}
+.search-inp{flex:1}
+.filter-row{display:flex;gap:.4rem;margin-bottom:.9rem;flex-wrap:wrap}
+.fbtn{padding:.32rem .65rem;border:1px solid var(--bd);border-radius:50px;background:transparent;color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s}
+.fbtn.on{background:var(--pbg);border-color:var(--pbd);color:var(--p)}
+
+/* QUIZ */
+.quiz-setup{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1.1rem;margin-bottom:.8rem}
+.quiz-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1.5rem 1.25rem;text-align:center;margin-bottom:.7rem}
+.quiz-q-label{font-size:.63rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem}
+.quiz-word{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--p);margin-bottom:.5rem;line-height:1.2}
+.quiz-meaning{font-size:.9rem;color:var(--tx2);line-height:1.6;margin-bottom:1rem;padding:0 .5rem}
+.quiz-opts{display:flex;flex-direction:column;gap:.45rem;margin-top:.5rem}
+.quiz-opt{padding:.65rem 1rem;border:1px solid var(--bd);border-radius:var(--rad-s);background:var(--s2);color:var(--tx);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .18s;text-align:left}
+.quiz-opt:hover:not(:disabled){border-color:var(--pbd);background:var(--pbg);color:var(--p)}
+.quiz-opt.correct{border-color:var(--gbd);background:var(--gbg);color:var(--g)}
+.quiz-opt.wrong{border-color:var(--rbd);background:var(--rbg);color:var(--r)}
+.quiz-opt:disabled{cursor:default}
+.quiz-type-input{font-size:1rem;text-align:center;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+.quiz-progress{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem}
+.quiz-prog-bar{flex:1;height:4px;background:var(--s3);border-radius:100px;overflow:hidden}
+.quiz-prog-fill{height:100%;background:var(--p);border-radius:100px;transition:width .4s}
+.quiz-result{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1.5rem;text-align:center;margin-bottom:.7rem}
+.quiz-score-big{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;line-height:1;margin-bottom:.3rem}
+.quiz-missed{margin-top:1rem;text-align:left}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:.9rem}
+@media(min-width:500px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:.8rem;text-align:center}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:500;line-height:1;margin-bottom:.18rem}
+.stat-lbl{font-size:.6rem;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.streak-row{display:flex;align-items:center;gap:.7rem;background:var(--s1);border:1px solid var(--pbd);border-radius:var(--rad);padding:.9rem 1.1rem;margin-bottom:.7rem}
+.streak-num{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--p);line-height:1}
+.streak-info{flex:1}
+.streak-lbl{font-size:.75rem;font-weight:700;color:var(--p)}
+.streak-sub{font-size:.68rem;color:var(--tx3);margin-top:.1rem}
+.weak-list{display:flex;flex-direction:column;gap:.4rem}
+.weak-item{display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad-s);padding:.55rem .85rem;gap:.5rem}
+.weak-word{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:600;color:var(--r)}
+.weak-stat{font-size:.7rem;color:var(--tx3)}
+
+/* LIGHT THEME */
+body.light{--bg:#f0f0f5;--s1:#ffffff;--s2:#f5f5fa;--s3:#ebebf5;--s4:#e0e0ee;--bd:#c8c8d8;--bd2:#a0a0b8;--tx:#0a0a12;--tx2:#2a2a40;--tx3:#52526a}
+body.light .hdr{background:rgba(240,240,245,.95)}
+body.light .sec{color:#3a3a55}
+body.light .fl{color:#3a3a55}
+body.light .nb{color:#4a4a62}
+body.light .nb.on{color:#0a0a12}
+body.light .user-chip{color:#2a2a40;background:#ebebf5;border-color:#c8c8d8}
+body.light .sync{color:#4a4a62}
+</style>
+</head>
+<body>
+<div class="app">
+
+
+
+<header class="hdr">
+  <div class="logo">Word<em>Vault</em></div>
+  <div class="hdr-right">
+    <div class="user-chip" id="user-chip" style="cursor:default;pointer-events:none"></div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="sync"><div class="dot load" id="sdot"></div><span id="slbl">connecting…</span></div>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nb on" onclick="tab('vault')">Vault</button>
+  <button class="nb" onclick="tab('add')">+ Add</button>
+  <button class="nb" onclick="tab('quiz')">Quiz</button>
+  <button class="nb" onclick="tab('stats')">Stats</button>
+</nav>
+
+<!-- VAULT -->
+<div class="pg on" id="pg-vault">
+  <div class="search-bar">
+    <input type="text" class="search-inp" id="search-inp" placeholder="Search words…" oninput="renderVault()">
+  </div>
+  <div class="filter-row">
+    <button class="fbtn on" id="f-all" onclick="setFilter('all')">All</button>
+    <button class="fbtn" id="f-easy" onclick="setFilter('easy')">🟢 Easy</button>
+    <button class="fbtn" id="f-medium" onclick="setFilter('medium')">🟡 Medium</button>
+    <button class="fbtn" id="f-hard" onclick="setFilter('hard')">🔴 Hard</button>
+    <button class="fbtn" id="f-weak" onclick="setFilter('weak')">⚡ Weak</button>
+  </div>
+  <div id="vault-body"></div>
+</div>
+
+<!-- ADD WORD -->
+<div class="pg" id="pg-add">
+  <div class="add-form">
+    <div class="fg" style="margin-bottom:.6rem">
+      <label class="fl">Word</label>
+      <input type="text" class="add-word-input" id="add-word" placeholder="e.g. ephemeral" oninput="onWordInput()" autocomplete="off" autocapitalize="none">
+    </div>
+    <div class="fetch-bar">
+      <button class="btn btn-s btn-sm" onclick="fetchDict()" id="fetch-btn">Fetch from Dictionary</button>
+      <span class="fetch-status" id="fetch-status"></span>
+    </div>
+    <div class="fg" style="margin-bottom:.55rem">
+      <label class="fl">Part of Speech</label>
+      <select id="add-pos">
+        <option value="">— select —</option>
+        <option value="noun">Noun</option>
+        <option value="verb">Verb</option>
+        <option value="adjective">Adjective</option>
+        <option value="adverb">Adverb</option>
+        <option value="phrase">Phrase / Expression</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="fg" style="margin-bottom:.55rem">
+      <label class="fl">Meaning / Definition</label>
+      <textarea id="add-meaning" placeholder="What does it mean?"></textarea>
+    </div>
+    <div class="fg" style="margin-bottom:.55rem">
+      <label class="fl">Example Sentence</label>
+      <textarea id="add-example" placeholder="Use it in a sentence…" style="min-height:56px"></textarea>
+    </div>
+    <div class="fg" style="margin-bottom:.55rem">
+      <label class="fl">Synonyms (comma separated)</label>
+      <input type="text" id="add-synonyms" placeholder="e.g. fleeting, transient, momentary">
+    </div>
+    <div class="fg" style="margin-bottom:.75rem">
+      <label class="fl">Your Notes (optional)</label>
+      <textarea id="add-notes" placeholder="Memory trick, context, where you heard it…" style="min-height:50px"></textarea>
+    </div>
+    <div class="fg" style="margin-bottom:.9rem">
+      <label class="fl">Difficulty</label>
+      <div class="diff-row">
+        <button class="diff-btn on-easy" id="diff-easy" onclick="setDiff('easy')">🟢 Easy</button>
+        <button class="diff-btn" id="diff-medium" onclick="setDiff('medium')">🟡 Medium</button>
+        <button class="diff-btn" id="diff-hard" onclick="setDiff('hard')">🔴 Hard</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-p" style="flex:1" onclick="saveWord()" id="save-btn">Save Word</button>
+      <button class="btn btn-s" onclick="clearForm()">Clear</button>
+    </div>
+    <div id="edit-mode-bar" style="display:none;margin-top:.6rem;padding:.5rem .7rem;background:var(--ybg);border:1px solid var(--ybd);border-radius:var(--rad-s);font-size:.75rem;color:var(--y);display:none">
+      ✏️ Editing existing word — <button onclick="cancelEdit()" style="background:none;border:none;color:var(--y);font-weight:700;cursor:pointer;text-decoration:underline">Cancel edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="pg" id="pg-quiz">
+  <div id="quiz-setup-panel">
+    <div class="quiz-setup">
+      <div class="sec" style="margin-bottom:.7rem">Quiz Settings</div>
+      <div class="fg" style="margin-bottom:.6rem">
+        <label class="fl">Number of words</label>
+        <input type="number" id="quiz-count" value="10" min="3" max="100" placeholder="10">
+      </div>
+      <div class="fg" style="margin-bottom:.6rem">
+        <label class="fl">Mode</label>
+        <select id="quiz-mode">
+          <option value="mcq-meaning">Word → Pick correct meaning</option>
+          <option value="mcq-word">Meaning → Pick correct word</option>
+          <option value="type-word">Meaning → Type the word</option>
+          <option value="random">Random mix of all modes</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:.85rem">
+        <label class="fl">Word pool</label>
+        <select id="quiz-pool">
+          <option value="all">All words</option>
+          <option value="hard">Hard only</option>
+          <option value="weak">Weak words (low score)</option>
+          <option value="recent">Last 30 added</option>
+        </select>
+      </div>
+      <button class="btn btn-p btn-full" onclick="startQuiz()">Start Quiz →</button>
+    </div>
+    <div id="quiz-leaderboard" style="margin-top:.5rem"></div>
+  </div>
+  <div id="quiz-active-panel" style="display:none">
+    <div class="quiz-progress">
+      <div class="quiz-prog-bar"><div class="quiz-prog-fill" id="quiz-prog-fill"></div></div>
+      <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--tx3)" id="quiz-prog-lbl">0/0</span>
+    </div>
+    <div id="quiz-card-area"></div>
+    <div id="quiz-feedback" style="display:none;margin-bottom:.7rem"></div>
+    <div id="quiz-nav" style="display:none;text-align:right">
+      <button class="btn btn-p" onclick="nextQuizQ()">Next →</button>
+    </div>
+  </div>
+  <div id="quiz-result-panel" style="display:none"></div>
+</div>
+
+<!-- STATS -->
+<div class="pg" id="pg-stats">
+  <div id="stats-body"></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- WORD CARD MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <span class="modal-handle"></span>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://dzvnihxhakcggzhqgppr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6dm5paHhoYWtjZ2d6aHFncHByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NjcwMTUsImV4cCI6MjA4NzM0MzAxNX0.E8J5QnF_VH2YX_xQLiOtSKROJ8WtvZGHI3TLTgffNwQ';
+
+/* ── STATE ── */
+let db=null, currentUser='vishnu', WORDS=[], filterMode='all', editingId=null, selectedDiff='easy';
+let quizWords=[], quizIdx=0, quizScore=0, quizAnswered=false;
+
+/* ── LOGIN ── */
+
+function checkAutoLogin(){
+  document.getElementById('user-chip').textContent=currentUser;
+  initDB();
+}
+
+/* ── DB ── */
+function setSS(st,lbl){document.getElementById('sdot').className='dot '+st;document.getElementById('slbl').textContent=lbl;}
+async function initDB(){
+  setSS('load','connecting…');
+  try{
+    db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const{data,error}=await db.from('wordvault_words').select('*').eq('user_id',currentUser).order('created_at',{ascending:false});
+    if(!error&&data) WORDS=data;
+    setSS('ok','synced');
+  }catch(e){setSS('err','offline');loadLocal();}
+  renderVault();renderStats();renderQuizLeaderboard();updateStreak();
+}
+async function saveWords(){
+  if(db){
+    try{
+      setSS('load','saving…');
+      // Upsert all words
+      const{error}=await db.from('wordvault_words').upsert(
+        WORDS.map(w=>({...w,user_id:currentUser})),{onConflict:'id'}
+      );
+      if(!error)setSS('ok','saved ✓');else setSS('err','sync err');
+      setTimeout(()=>setSS('ok','synced'),2000);
+    }catch(e){setSS('err','offline');}
+  }
+  saveLocal();
+}
+async function deleteWordDB(id){
+  if(db){try{await db.from('wordvault_words').delete().eq('id',id).eq('user_id',currentUser);}catch(e){}}
+  saveLocal();
+}
+function saveLocal(){try{localStorage.setItem('wv_'+currentUser,JSON.stringify(WORDS));}catch(e){}}
+function loadLocal(){
+  try{const d=JSON.parse(localStorage.getItem('wv_'+currentUser)||'[]');if(Array.isArray(d))WORDS=d;}catch(e){}
+}
+
+/* ── STREAK ── */
+function updateStreak(){
+  const today=todayStr();
+  const lastActive=localStorage.getItem('wv_last_'+currentUser);
+  const streak=parseInt(localStorage.getItem('wv_streak_'+currentUser)||'0');
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yStr=yesterday.toISOString().slice(0,10);
+  if(lastActive===today) return;
+  if(lastActive===yStr||!lastActive){
+    localStorage.setItem('wv_streak_'+currentUser,streak+1);
+  } else {
+    localStorage.setItem('wv_streak_'+currentUser,'1');
+  }
+  localStorage.setItem('wv_last_'+currentUser,today);
+}
+function getStreak(){return parseInt(localStorage.getItem('wv_streak_'+currentUser)||'0');}
+const todayStr=()=>new Date().toISOString().slice(0,10);
+
+/* ── VAULT ── */
+function setFilter(f){
+  filterMode=f;
+  ['all','easy','medium','hard','weak'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
+  renderVault();
+}
+function renderVault(){
+  const q=document.getElementById('search-inp').value.trim().toLowerCase();
+  let words=[...WORDS];
+  if(q) words=words.filter(w=>w.word.toLowerCase().includes(q)||w.meaning?.toLowerCase().includes(q));
+  if(filterMode==='easy') words=words.filter(w=>w.difficulty==='easy');
+  else if(filterMode==='medium') words=words.filter(w=>w.difficulty==='medium');
+  else if(filterMode==='hard') words=words.filter(w=>w.difficulty==='hard');
+  else if(filterMode==='weak') words=words.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6&&(w.quiz_total||0)>0);
+  const body=document.getElementById('vault-body');
+  if(!words.length){
+    body.innerHTML=`<div class="empty">No words yet${filterMode!=='all'?' in this filter':''}.<br>${filterMode==='all'?'Go to <strong>+ Add</strong> to add your first word!':'Try a different filter.'}</div>`;
+    return;
+  }
+  body.innerHTML=`<div style="font-size:.68rem;color:var(--tx3);margin-bottom:.55rem">${words.length} word${words.length!==1?'s':''}</div><div class="word-grid">${words.map(w=>`<div class="word-pill diff-${w.difficulty||'easy'}" onclick="openModal('${w.id}')"><span class="diff-dot"></span>${w.word}</div>`).join('')}</div>`;
+}
+
+/* ── MODAL ── */
+function openModal(id){
+  const w=WORDS.find(x=>x.id===id);if(!w)return;
+  const syns=Array.isArray(w.synonyms)?w.synonyms:(w.synonyms?w.synonyms.split(','):[]);
+  const qTotal=w.quiz_total||0,qCorrect=w.quiz_correct||0;
+  const qPct=qTotal>0?Math.round(qCorrect/qTotal*100):null;
+  const scoreCol=qPct===null?'var(--tx3)':qPct>=70?'var(--g)':qPct>=40?'var(--y)':'var(--r)';
+  document.getElementById('modal-content').innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.2rem">
+      <div>
+        <div class="modal-word">${w.word}</div>
+        ${w.phonetic?`<div class="modal-phonetic">/${w.phonetic}/</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+        <span class="tag ${w.difficulty==='easy'?'tg':w.difficulty==='medium'?'ty':'tr_'}">${w.difficulty||'easy'}</span>
+        ${qPct!==null?`<span class="quiz-score-badge" style="color:${scoreCol}">Quiz ${qPct}%</span>`:''}
+      </div>
+    </div>
+    ${w.pos?`<div class="modal-pos">${w.pos}</div>`:''}
+    ${w.meaning?`<div class="modal-section"><div class="modal-section-lbl">Meaning</div><div class="modal-meaning">${w.meaning}</div></div>`:''}
+    ${w.example?`<div class="modal-section"><div class="modal-section-lbl">Example</div><div class="modal-example">"${w.example}"</div></div>`:''}
+    ${syns.filter(s=>s.trim()).length?`<div class="modal-section"><div class="modal-section-lbl">Synonyms</div><div class="syn-list">${syns.filter(s=>s.trim()).map(s=>`<span class="syn-chip" onclick="lookupSyn('${s.trim()}')">${s.trim()}</span>`).join('')}</div></div>`:''}
+    ${w.notes?`<div class="modal-section"><div class="modal-section-lbl">Your Notes</div><div class="modal-notes">${w.notes}</div></div>`:''}
+    <div class="modal-footer">
+      <button class="btn btn-s btn-sm" onclick="editWord('${w.id}')">✏️ Edit</button>
+      <button class="btn btn-d btn-sm" onclick="deleteWord('${w.id}')">🗑 Delete</button>
+    </div>
+    <div class="modal-date">Added ${new Date(w.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){
+  if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('open');
+}
+function closeMod(){document.getElementById('modal-overlay').classList.remove('open');}
+function lookupSyn(word){
+  closeMod();
+  document.getElementById('add-word').value=word;
+  tab('add');fetchDict();
+}
+
+/* ── ADD / EDIT WORD ── */
+let addDiff='easy';
+function setDiff(d){
+  addDiff=d;
+  ['easy','medium','hard'].forEach(x=>{
+    const b=document.getElementById('diff-'+x);
+    b.className='diff-btn'+(d===x?' on-'+x:'');
+  });
+}
+function onWordInput(){
+  document.getElementById('fetch-status').textContent='';
+}
+async function fetchDict(){
+  const word=document.getElementById('add-word').value.trim().toLowerCase();
+  if(!word){showToast('Type a word first','tr');return;}
+  document.getElementById('fetch-status').textContent='Fetching…';
+  document.getElementById('fetch-btn').disabled=true;
+  try{
+    const res=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if(!res.ok)throw'not found';
+    const data=await res.json();
+    const entry=data[0];
+    const meanings=entry.meanings||[];
+    const firstMeaning=meanings[0];
+    const def=firstMeaning?.definitions?.[0];
+    // Fill form
+    if(entry.phonetic)document.getElementById('add-word').value=entry.word||word;
+    if(firstMeaning?.partOfSpeech){
+      const pos=firstMeaning.partOfSpeech;
+      const sel=document.getElementById('add-pos');
+      [...sel.options].forEach(o=>{if(o.value===pos)sel.value=pos;});
+    }
+    if(def?.definition)document.getElementById('add-meaning').value=def.definition;
+    if(def?.example)document.getElementById('add-example').value=def.example;
+    // Collect synonyms from all meanings
+    const syns=[...new Set(meanings.flatMap(m=>m.synonyms||[]))].slice(0,6);
+    if(syns.length)document.getElementById('add-synonyms').value=syns.join(', ');
+    document.getElementById('fetch-status').textContent=`✓ Found "${entry.word}"`;
+    showToast('Dictionary data loaded!','tg');
+  }catch(e){
+    document.getElementById('fetch-status').textContent='Not found — fill manually';
+    showToast('Word not in dictionary — fill manually','tr');
+  }
+  document.getElementById('fetch-btn').disabled=false;
+}
+async function saveWord(){
+  const word=document.getElementById('add-word').value.trim().toLowerCase();
+  if(!word){showToast('Enter a word','tr');return;}
+  const meaning=document.getElementById('add-meaning').value.trim();
+  if(!meaning){showToast('Add a meaning','tr');return;}
+  const synRaw=document.getElementById('add-synonyms').value.trim();
+  const synonyms=synRaw?synRaw.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const entry={
+    id:editingId||crypto.randomUUID(),
+    user_id:currentUser,
+    word,
+    pos:document.getElementById('add-pos').value,
+    meaning,
+    example:document.getElementById('add-example').value.trim(),
+    synonyms: synonyms.join(', '),
+    notes:document.getElementById('add-notes').value.trim(),
+    difficulty:addDiff,
+    phonetic:'',
+    quiz_total:0,
+    quiz_correct:0,
+    created_at:editingId?(WORDS.find(w=>w.id===editingId)?.created_at||new Date().toISOString()):new Date().toISOString(),
+    updated_at:new Date().toISOString()
+  };
+  if(editingId){
+    const old=WORDS.find(w=>w.id===editingId);
+    entry.quiz_total=old?.quiz_total||0;
+    entry.quiz_correct=old?.quiz_correct||0;
+    WORDS=WORDS.map(w=>w.id===editingId?entry:w);
+    showToast('Word updated ✓','tg');
+  } else {
+    if(WORDS.find(w=>w.word===word)){showToast('Word already in vault!','tr');return;}
+    WORDS.unshift(entry);
+    showToast(`"${word}" added to vault ✓`,'tg');
+  }
+  await saveWords();
+  clearForm();renderVault();renderStats();tab('vault');
+}
+function clearForm(){
+  ['add-word','add-meaning','add-example','add-synonyms','add-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-pos').value='';
+  document.getElementById('fetch-status').textContent='';
+  setDiff('easy');
+  editingId=null;
+  document.getElementById('edit-mode-bar').style.display='none';
+  document.getElementById('save-btn').textContent='Save Word';
+}
+function editWord(id){
+  const w=WORDS.find(x=>x.id===id);if(!w)return;
+  closeMod();tab('add');
+  editingId=id;
+  document.getElementById('add-word').value=w.word;
+  document.getElementById('add-pos').value=w.pos||'';
+  document.getElementById('add-meaning').value=w.meaning||'';
+  document.getElementById('add-example').value=w.example||'';
+  document.getElementById('add-synonyms').value=Array.isArray(w.synonyms)?w.synonyms.join(', '):(w.synonyms||'');
+  document.getElementById('add-notes').value=w.notes||'';
+  setDiff(w.difficulty||'easy');
+  document.getElementById('edit-mode-bar').style.display='block';
+  document.getElementById('save-btn').textContent='Update Word';
+}
+function cancelEdit(){clearForm();}
+async function deleteWord(id){
+  if(!confirm('Delete this word from your vault?'))return;
+  WORDS=WORDS.filter(w=>w.id!==id);
+  await deleteWordDB(id);
+  closeMod();renderVault();renderStats();showToast('Deleted','tr');
+}
+
+/* ── QUIZ ── */
+function getQuizPool(){
+  const pool=document.getElementById('quiz-pool').value;
+  let words=[...WORDS];
+  if(pool==='hard') words=words.filter(w=>w.difficulty==='hard');
+  else if(pool==='weak') words=words.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6);
+  else if(pool==='recent') words=words.slice(0,30);
+  return words;
+}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+function startQuiz(){
+  const pool=getQuizPool();
+  const cnt=Math.min(parseInt(document.getElementById('quiz-count').value)||10,pool.length);
+  if(cnt<3){showToast('Need at least 3 words in this pool','tr');return;}
+  quizWords=shuffle(pool).slice(0,cnt);
+  quizIdx=0;quizScore=0;quizAnswered=false;
+  document.getElementById('quiz-setup-panel').style.display='none';
+  document.getElementById('quiz-active-panel').style.display='block';
+  document.getElementById('quiz-result-panel').style.display='none';
+  showQuizQ();
+}
+function getQuizMode(){
+  const m=document.getElementById('quiz-mode').value;
+  if(m==='random'){const modes=['mcq-meaning','mcq-word','type-word'];return modes[Math.floor(Math.random()*modes.length)];}
+  return m;
+}
+function showQuizQ(){
+  quizAnswered=false;
+  document.getElementById('quiz-feedback').style.display='none';
+  document.getElementById('quiz-nav').style.display='none';
+  const pct=Math.round(quizIdx/quizWords.length*100);
+  document.getElementById('quiz-prog-fill').style.width=pct+'%';
+  document.getElementById('quiz-prog-lbl').textContent=`${quizIdx}/${quizWords.length}`;
+  const w=quizWords[quizIdx];
+  const mode=getQuizMode();
+  const area=document.getElementById('quiz-card-area');
+  if(mode==='mcq-meaning'){
+    // Show word, pick meaning
+    const wrong=shuffle(WORDS.filter(x=>x.id!==w.id&&x.meaning)).slice(0,3);
+    const opts=shuffle([w,...wrong]);
+    area.innerHTML=`<div class="quiz-card">
+      <div class="quiz-q-label">What does this word mean?</div>
+      <div class="quiz-word">${w.word}</div>
+      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" onclick="answerMCQ('${o.id}','${w.id}',this)">${o.meaning?.slice(0,120)}</button>`).join('')}</div>
+    </div>`;
+  } else if(mode==='mcq-word'){
+    // Show meaning, pick word
+    const wrong=shuffle(WORDS.filter(x=>x.id!==w.id)).slice(0,3);
+    const opts=shuffle([w,...wrong]);
+    area.innerHTML=`<div class="quiz-card">
+      <div class="quiz-q-label">Which word matches this meaning?</div>
+      <div class="quiz-meaning">${w.meaning}</div>
+      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" onclick="answerMCQ('${o.id}','${w.id}',this)">${o.word}</button>`).join('')}</div>
+    </div>`;
+  } else {
+    // Type the word
+    area.innerHTML=`<div class="quiz-card">
+      <div class="quiz-q-label">Type the word for this meaning</div>
+      <div class="quiz-meaning">${w.meaning}</div>
+      ${w.example?`<div class="modal-example" style="margin:.6rem 0">"${w.example.replace(new RegExp(w.word,'gi'),'_____')}"</div>`:''}
+      <input type="text" class="quiz-type-input" id="quiz-type-inp" placeholder="Type the word…" autocomplete="off" autocapitalize="none" onkeydown="if(event.key==='Enter')answerType('${w.id}')">
+      <div style="margin-top:.7rem"><button class="btn btn-p" onclick="answerType('${w.id}')">Submit</button></div>
+    </div>`;
+    setTimeout(()=>document.getElementById('quiz-type-inp')?.focus(),100);
+  }
+}
+function answerMCQ(chosen,correct,btn){
+  if(quizAnswered)return;
+  quizAnswered=true;
+  const isCorrect=chosen===correct;
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    b.disabled=true;
+    const wid=b.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    if(wid===correct)b.classList.add('correct');
+    else if(b===btn&&!isCorrect)b.classList.add('wrong');
+  });
+  recordAnswer(correct,isCorrect);
+  showFeedback(isCorrect,correct);
+}
+function answerType(correct){
+  if(quizAnswered)return;
+  const inp=document.getElementById('quiz-type-inp');
+  if(!inp)return;
+  const typed=inp.value.trim().toLowerCase();
+  const w=WORDS.find(x=>x.id===correct);
+  const isCorrect=typed===w?.word?.toLowerCase();
+  quizAnswered=true;
+  inp.disabled=true;
+  inp.style.borderColor=isCorrect?'var(--gbd)':'var(--rbd)';
+  inp.style.color=isCorrect?'var(--g)':'var(--r)';
+  recordAnswer(correct,isCorrect);
+  showFeedback(isCorrect,correct);
+}
+function showFeedback(isCorrect,correctId){
+  const w=WORDS.find(x=>x.id===correctId);
+  const fb=document.getElementById('quiz-feedback');
+  fb.style.display='block';
+  fb.innerHTML=`<div style="padding:.6rem .9rem;border-radius:var(--rad-s);border:1px solid ${isCorrect?'var(--gbd)':'var(--rbd)'};background:${isCorrect?'var(--gbg)':'var(--rbg)'};font-size:.82rem;color:${isCorrect?'var(--g)':'var(--r)'}">
+    ${isCorrect?'✓ Correct!':'✗ Wrong — the answer was: <strong style="font-family:JetBrains Mono,monospace">${w?.word}</strong>'}
+    ${!isCorrect&&w?.meaning?`<div style="font-size:.75rem;color:var(--tx2);margin-top:.25rem">${w.meaning}</div>`:''}
+  </div>`.replace('${w?.word}',w?.word||'').replace('${w?.meaning}',w?.meaning||'');
+  if(isCorrect)quizScore++;
+  document.getElementById('quiz-nav').style.display='block';
+}
+function recordAnswer(id,correct){
+  const idx=WORDS.findIndex(w=>w.id===id);
+  if(idx===-1)return;
+  WORDS[idx].quiz_total=(WORDS[idx].quiz_total||0)+1;
+  if(correct)WORDS[idx].quiz_correct=(WORDS[idx].quiz_correct||0)+1;
+}
+function nextQuizQ(){
+  quizIdx++;
+  if(quizIdx>=quizWords.length){endQuiz();return;}
+  showQuizQ();
+}
+async function endQuiz(){
+  await saveWords();
+  document.getElementById('quiz-active-panel').style.display='none';
+  const pct=Math.round(quizScore/quizWords.length*100);
+  const col=pct>=80?'var(--g)':pct>=50?'var(--y)':'var(--r)';
+  const missed=quizWords.filter((w,i)=>!w._correct);
+  // Save to leaderboard
+  const entry={user:currentUser,score:pct,count:quizWords.length,date:new Date().toISOString()};
+  const history=JSON.parse(localStorage.getItem('wv_quizhistory_'+currentUser)||'[]');
+  history.unshift(entry);localStorage.setItem('wv_quizhistory_'+currentUser,JSON.stringify(history.slice(0,20)));
+  document.getElementById('quiz-result-panel').style.display='block';
+  document.getElementById('quiz-result-panel').innerHTML=`<div class="quiz-result">
+    <div class="quiz-q-label">Quiz Complete!</div>
+    <div class="quiz-score-big" style="color:${col}">${pct}%</div>
+    <div style="font-size:.82rem;color:var(--tx2);margin-top:.3rem">${quizScore}/${quizWords.length} correct</div>
+    <div style="margin-top:1rem;display:flex;gap:.5rem;justify-content:center">
+      <button class="btn btn-p" onclick="startQuiz()">Retry</button>
+      <button class="btn btn-s" onclick="backToSetup()">New Quiz</button>
+    </div>
+  </div>`;
+  renderStats();renderQuizLeaderboard();
+}
+function backToSetup(){
+  document.getElementById('quiz-setup-panel').style.display='block';
+  document.getElementById('quiz-result-panel').style.display='none';
+  document.getElementById('quiz-active-panel').style.display='none';
+  renderQuizLeaderboard();
+}
+function renderQuizLeaderboard(){
+  const history=JSON.parse(localStorage.getItem('wv_quizhistory_'+currentUser)||'[]');
+  const el=document.getElementById('quiz-leaderboard');
+  if(!history.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="sec" style="margin-top:.5rem">Recent Quizzes</div>
+  <div style="display:flex;flex-direction:column;gap:.35rem">
+    ${history.slice(0,5).map(h=>{
+      const col=h.score>=80?'var(--g)':h.score>=50?'var(--y)':'var(--r)';
+      return`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad-s);padding:.5rem .85rem">
+        <span style="font-size:.78rem;color:var(--tx2)">${new Date(h.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>
+        <span style="font-size:.72rem;color:var(--tx3)">${h.count} words</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:${col}">${h.score}%</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── STATS ── */
+function renderStats(){
+  const total=WORDS.length;
+  const today=WORDS.filter(w=>w.created_at?.slice(0,10)===todayStr()).length;
+  const week=WORDS.filter(w=>{const d=new Date(w.created_at);const now=new Date();return(now-d)<7*86400000;}).length;
+  const streak=getStreak();
+  const easy=WORDS.filter(w=>w.difficulty==='easy').length;
+  const medium=WORDS.filter(w=>w.difficulty==='medium').length;
+  const hard=WORDS.filter(w=>w.difficulty==='hard').length;
+  const weak=WORDS.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6&&(w.quiz_total||0)>=2);
+  const el=document.getElementById('stats-body');
+  el.innerHTML=`
+    <div class="streak-row">
+      <div class="streak-num">${streak}</div>
+      <div class="streak-info">
+        <div class="streak-lbl">Day Streak 🔥</div>
+        <div class="streak-sub">Keep adding words daily to grow your streak</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" style="color:var(--p)">${total}</div><div class="stat-lbl">Total Words</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--g)">${today}</div><div class="stat-lbl">Added Today</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--b)">${week}</div><div class="stat-lbl">This Week</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--y)">${weak.length}</div><div class="stat-lbl">Weak Words</div></div>
+    </div>
+    <div class="sec">By Difficulty</div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:.9rem">
+      <div class="stat-card"><div class="stat-val" style="color:var(--g)">${easy}</div><div class="stat-lbl">Easy</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--y)">${medium}</div><div class="stat-lbl">Medium</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--r)">${hard}</div><div class="stat-lbl">Hard</div></div>
+    </div>
+    ${weak.length?`<div class="sec">Weak Words — Need Practice</div>
+    <div class="weak-list">${weak.map(w=>{const pct=Math.round((w.quiz_correct||0)/(w.quiz_total)*100);return`<div class="weak-item"><span class="weak-word">${w.word}</span><span class="weak-stat">${pct}% (${w.quiz_correct}/${w.quiz_total})</span><button class="btn btn-s btn-sm" onclick="openModal('${w.id}')">View</button></div>`;}).join('')}</div>`:''}`;
+}
+function logout(){if(!confirm('Switch account?'))return;localStorage.removeItem('wv_user');location.reload();}
+
+/* ── TABS ── */
+function tab(id){
+  const IDS=['vault','add','quiz','stats'];
+  document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',IDS[i]===id));
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='vault')renderVault();
+  if(id==='stats'){renderStats();}
+}
+
+/* ── THEME ── */
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent=isLight?'☀️':'🌙';
+  localStorage.setItem('wv_theme',isLight?'light':'dark');
+}
+function initTheme(){
+  if(localStorage.getItem('wv_theme')==='light'){document.body.classList.add('light');document.getElementById('theme-btn').textContent='☀️';}
+}
+
+/* ── SWIPE ── */
+(function(){
+  const TABS=['vault','add','quiz','stats'];
+  let sx=0,sy=0,st=0;
+  document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy,dt=Date.now()-st;
+    if(dt>400||Math.abs(dx)<60||Math.abs(dy)>Math.abs(dx)*0.8)return;
+    if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+    const active=document.querySelector('.pg.on')?.id?.replace('pg-','');
+    const idx=TABS.indexOf(active);if(idx===-1)return;
+    if(dx<0&&idx<TABS.length-1)tab(TABS[idx+1]);
+    if(dx>0&&idx>0)tab(TABS[idx-1]);
+  },{passive:true});
+})();
+
+/* ── TOAST ── */
+let _tt;
+function showToast(msg,cls=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+cls+' show';clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
+
+/* ── INIT ── */
+initTheme();checkAutoLogin();
+</script>
+</body>
+</html>
