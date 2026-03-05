@@ -197,6 +197,11 @@ body.light .user-chip{color:#2a2a40;background:#ebebf5;border-color:#c8c8d8}
 body.light .sync{color:#4a4a62}
 </style>
 </head>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
 <body>
 <div class="app">
 
