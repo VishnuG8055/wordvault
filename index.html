@@ -29,6 +29,8 @@ html{scroll-behavior:smooth}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+:focus-visible{outline:2px solid var(--p);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
 .app{display:flex;flex-direction:column;min-height:100dvh}
 
 /* HEADER */
@@ -36,7 +38,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-he
 .logo{font-size:1.1rem;font-weight:800;letter-spacing:-.04em}
 .logo em{color:var(--p);font-style:normal}
 .hdr-right{display:flex;align-items:center;gap:.5rem}
-.user-chip{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--tx2);background:var(--s2);border:1px solid var(--bd);border-radius:50px;padding:.18rem .6rem;cursor:default;pointer-events:none}
+.user-chip{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--tx2);background:var(--s2);border:1px solid var(--bd);border-radius:50px;padding:.18rem .6rem .18rem .75rem;cursor:pointer;display:flex;align-items:center;gap:.3rem}
+.user-chip:hover{border-color:var(--bd2)}
 .sync{display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--tx3)}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--tx3);flex-shrink:0;transition:background .3s}
 .dot.ok{background:var(--g)}.dot.err{background:var(--r)}.dot.load{background:var(--y)}
@@ -54,9 +57,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-he
 /* NAV */
 .nav{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--bd);position:sticky;top:52px;z-index:200}
 .nav::-webkit-scrollbar{display:none}
-.nb{flex-shrink:0;height:42px;padding:0 1.05rem;border:none;background:transparent;color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:color .18s,border-color .18s;white-space:nowrap}
+.nb{flex-shrink:0;height:42px;padding:0 1.05rem;border:none;background:transparent;color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:color .18s,border-color .18s;white-space:nowrap;position:relative}
 .nb.on{color:var(--tx);border-bottom-color:var(--p)}
 .nb:hover:not(.on){color:var(--tx2)}
+.nb-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 .25rem;border-radius:50px;background:var(--b);color:#fff;font-size:.6rem;font-weight:800;margin-left:.32rem;vertical-align:2px}
 
 /* PAGES */
 .pg{display:none;padding:1.1rem 1rem;max-width:860px;margin:0 auto;width:100%}
@@ -66,7 +70,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-he
 .empty{text-align:center;padding:3rem 1rem;color:var(--tx3);font-size:.85rem;line-height:1.8}
 .fg{display:flex;flex-direction:column;gap:.32rem}
 .fl{font-size:.65rem;font-weight:700;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase}
-input[type="text"],input[type="number"],input[type="email"],textarea,select{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:.52rem .7rem;border-radius:var(--rad-s);font-family:'Outfit',sans-serif;font-size:.84rem;outline:none;width:100%;transition:border-color .18s;-webkit-appearance:none;appearance:none}
+input[type="text"],input[type="number"],input[type="email"],input[type="password"],textarea,select{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:.52rem .7rem;border-radius:var(--rad-s);font-family:'Outfit',sans-serif;font-size:.84rem;outline:none;width:100%;transition:border-color .18s;-webkit-appearance:none;appearance:none}
 input:focus,textarea:focus,select:focus{border-color:var(--p)}
 textarea{resize:vertical;min-height:70px;line-height:1.5}
 option{background:var(--s2)}
@@ -84,7 +88,7 @@ option{background:var(--s2)}
 .tb_{background:var(--bbg);color:var(--b);border:1px solid var(--bbd)}
 .tp{background:var(--pbg);color:var(--p);border:1px solid var(--pbd)}
 .toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s2);border:1px solid var(--bd2);border-radius:50px;padding:.55rem 1.15rem;font-size:.78rem;font-weight:600;color:var(--tx);z-index:999;opacity:0;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s;white-space:nowrap;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
 .toast.tg{color:var(--g);border-color:var(--gbd)}
 .toast.tr{color:var(--r);border-color:var(--rbd)}
 .divider{height:1px;background:var(--bd);margin:.85rem 0}
@@ -97,8 +101,21 @@ option{background:var(--s2)}
 .word-pill.diff-easy .diff-dot{background:var(--g)}
 .word-pill.diff-medium .diff-dot{background:var(--y)}
 .word-pill.diff-hard .diff-dot{background:var(--r)}
+.word-pill .due-mark{width:6px;height:6px;border-radius:50%;background:var(--b);flex-shrink:0;margin-left:-.1rem}
 
-/* WORD CARD MODAL */
+/* DUE / WOTD BANNERS */
+.banner{display:flex;align-items:center;gap:.7rem;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:.9rem 1.1rem;margin-bottom:.7rem;cursor:pointer;transition:border-color .18s}
+.banner:hover{border-color:var(--bd2)}
+.banner-b{border-color:var(--bbd)}
+.banner-num{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--b);line-height:1;flex-shrink:0}
+.banner-info{flex:1;min-width:0}
+.banner-lbl{font-size:.75rem;font-weight:700;color:var(--b)}
+.banner-sub{font-size:.68rem;color:var(--tx3);margin-top:.1rem}
+.wotd-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:.3rem}
+.wotd-word{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--p);font-size:1.15rem}
+.wotd-meaning{font-size:.8rem;color:var(--tx2);margin-top:.25rem;line-height:1.5}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(4px)}
 .modal-overlay.open{opacity:1;pointer-events:all}
 @media(min-width:600px){.modal-overlay{align-items:center}}
@@ -108,8 +125,11 @@ option{background:var(--s2)}
 @media(min-width:600px){.modal-overlay.open .modal{transform:scale(1)}}
 .modal-handle{width:36px;height:3px;background:var(--bd2);border-radius:2px;margin:0 auto .9rem;display:block}
 @media(min-width:600px){.modal-handle{display:none}}
-.modal-word{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--p);margin-bottom:.15rem;line-height:1.2}
-.modal-phonetic{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--tx3);margin-bottom:.7rem}
+.modal-word-row{display:flex;align-items:center;gap:.5rem}
+.modal-word{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--p);line-height:1.2}
+.sound-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--bd);background:var(--s2);color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:all .15s}
+.sound-btn:hover{border-color:var(--pbd);color:var(--p)}
+.modal-phonetic{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--tx3);margin:.15rem 0 .7rem}
 .modal-pos{font-size:.7rem;font-weight:700;color:var(--b);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
 .modal-section{margin-bottom:.85rem}
 .modal-section-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:.35rem}
@@ -122,12 +142,19 @@ option{background:var(--s2)}
 .modal-footer{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
 .modal-date{font-size:.65rem;color:var(--tx3);margin-top:.6rem;font-family:'JetBrains Mono',monospace}
 .quiz-score-badge{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.22rem .6rem;border-radius:50px;border:1px solid var(--bd);background:var(--s2);color:var(--tx2)}
+.srs-track{display:flex;gap:.3rem}
+.srs-seg{width:16px;height:6px;border-radius:3px;background:var(--s3)}
+.srs-seg.on{background:var(--p)}
 
 /* ADD WORD */
 .add-form{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad);padding:1.1rem;margin-bottom:.8rem}
 .add-word-input{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:.04em}
-.fetch-bar{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;margin-bottom:.9rem}
-.fetch-status{font-size:.72rem;color:var(--tx3);flex:1}
+.fetch-bar{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+.fetch-status{font-size:.72rem;color:var(--tx3);flex:1;line-height:1.8}
+.dict-candidates{margin:.5rem 0 .9rem;display:flex;flex-direction:column;gap:.3rem}
+.dict-cand-btn{padding:.45rem .65rem;font-size:.73rem;text-align:left;border:1px solid var(--bd);border-radius:var(--rad-s);background:var(--s2);color:var(--tx2);cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.dict-cand-btn:hover{border-color:var(--pbd);color:var(--tx)}
+.dict-cand-btn b{color:var(--b);text-transform:uppercase;font-size:.63rem;letter-spacing:.04em}
 .diff-row{display:flex;gap:.4rem}
 .diff-btn{flex:1;padding:.4rem .5rem;border:1px solid var(--bd);border-radius:var(--rad-s);background:var(--s2);color:var(--tx3);font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
 .diff-btn.on-easy{background:var(--gbg);border-color:var(--gbd);color:var(--g)}
@@ -175,6 +202,7 @@ option{background:var(--s2)}
 .weak-item{display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rad-s);padding:.55rem .85rem;gap:.5rem}
 .weak-word{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:600;color:var(--r)}
 .weak-stat{font-size:.7rem;color:var(--tx3)}
+.data-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.9rem}
 
 /* LIGHT THEME */
 body.light{--bg:#f0f0f5;--s1:#ffffff;--s2:#f5f5fa;--s3:#ebebf5;--s4:#e0e0ee;--bd:#c8c8d8;--bd2:#a0a0b8;--tx:#0a0a12;--tx2:#2a2a40;--tx3:#52526a}
@@ -194,7 +222,7 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
 <header class="hdr">
   <div class="logo">Word<em>Vault</em></div>
   <div class="hdr-right">
-    <div class="user-chip" id="user-chip"></div>
+    <button class="user-chip" id="user-chip" onclick="switchProfile()" title="Switch profile"></button>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     <div class="sync"><div class="dot load" id="sdot"></div><span id="slbl">connecting…</span></div>
   </div>
@@ -203,17 +231,21 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
 <nav class="nav">
   <button class="nb on" onclick="tab('vault')">Vault</button>
   <button class="nb" onclick="tab('add')">+ Add</button>
+  <button class="nb" onclick="tab('review')">Review<span class="nb-badge" id="review-badge" style="display:none"></span></button>
   <button class="nb" onclick="tab('quiz')">Quiz</button>
   <button class="nb" onclick="tab('stats')">Stats</button>
 </nav>
 
 <!-- VAULT -->
 <div class="pg on" id="pg-vault">
+  <div id="wotd-card"></div>
+  <div id="due-banner"></div>
   <div class="search-bar">
-    <input type="text" class="search-inp" id="search-inp" placeholder="Search words…" oninput="renderVault()">
+    <input type="text" class="search-inp" id="search-inp" placeholder="Search words…" oninput="renderVaultDebounced()">
   </div>
   <div class="filter-row">
     <button class="fbtn on" id="f-all" onclick="setFilter('all')">All</button>
+    <button class="fbtn" id="f-due" onclick="setFilter('due')">⏰ Due</button>
     <button class="fbtn" id="f-easy" onclick="setFilter('easy')">🟢 Easy</button>
     <button class="fbtn" id="f-medium" onclick="setFilter('medium')">🟡 Medium</button>
     <button class="fbtn" id="f-hard" onclick="setFilter('hard')">🔴 Hard</button>
@@ -233,6 +265,7 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
       <button class="btn btn-s btn-sm" onclick="fetchDict()" id="fetch-btn">Fetch from Dictionary</button>
       <span class="fetch-status" id="fetch-status"></span>
     </div>
+    <div class="dict-candidates" id="dict-candidates"></div>
     <div class="fg" style="margin-bottom:.55rem">
       <label class="fl">Part of Speech</label>
       <select id="add-pos">
@@ -267,7 +300,7 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
         <button class="diff-btn on-easy" id="diff-easy" onclick="setDiff('easy')">🟢 Easy</button>
         <button class="diff-btn" id="diff-medium" onclick="setDiff('medium')">🟡 Medium</button>
         <button class="diff-btn" id="diff-hard" onclick="setDiff('hard')">🔴 Hard</button>
-      </div>  
+      </div>
     </div>
     <div style="display:flex;gap:.5rem">
       <button class="btn btn-p" style="flex:1" onclick="saveWord()" id="save-btn">Save Word</button>
@@ -277,6 +310,11 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
       Editing word — <button onclick="cancelEdit()" style="background:none;border:none;color:var(--y);font-weight:700;cursor:pointer;text-decoration:underline">Cancel</button>
     </div>
   </div>
+</div>
+
+<!-- REVIEW (SRS) -->
+<div class="pg" id="pg-review">
+  <div id="review-body"></div>
 </div>
 
 <!-- QUIZ -->
@@ -301,6 +339,7 @@ body.light .pwa-banner{background:#fff;border-color:var(--pbd)}
         <label class="fl">Word pool</label>
         <select id="quiz-pool">
           <option value="all">All words</option>
+          <option value="due">Due for review</option>
           <option value="hard">Hard only</option>
           <option value="weak">Weak words (low score)</option>
           <option value="recent">Last 30 added</option>
@@ -359,6 +398,17 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 let db=null, currentUser='vishnu', WORDS=[], filterMode='all', editingId=null;
 let quizWords=[], quizIdx=0, quizScore=0, quizAnswered=false;
 let deferredPrompt=null;
+let fetchedPhonetic='', fetchedAudio='', dictCandidates=[];
+let touchedIds=new Set();
+let pendingDelete=null;
+const SRS_INTERVALS=[0,1,2,4,7,14,30]; // days until next review, indexed by box level
+
+/* ── UTIL ── */
+function esc(s){return (s===null||s===undefined?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+function localDay(d){d=d||new Date();const off=d.getTimezoneOffset()*60000;return new Date(d.getTime()-off).toISOString().slice(0,10);}
+function toLocalDay(iso){if(!iso)return '';return localDay(new Date(iso));}
+function isDue(w){if(!w.next_review)return true;return new Date(w.next_review)<=new Date();}
 
 /* ── PWA ── */
 window.addEventListener('beforeinstallprompt', e => {
@@ -389,9 +439,25 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
+/* ── PROFILES (lightweight — NOT real authentication) ──
+   This keeps data separated by a chosen name, same as the original hardcoded
+   'vishnu' user_id. It does not secure data server-side; that requires real
+   Supabase Auth + row-level security tied to auth.uid(), which needs backend
+   changes beyond this file. See chat notes. */
+function switchProfile(){
+  const name=prompt('Switch profile (this just changes which local vault you see):', currentUser);
+  if(!name||!name.trim()||name.trim()===currentUser)return;
+  currentUser=name.trim().toLowerCase().replace(/\s+/g,'_');
+  localStorage.setItem('wv_last_profile',currentUser);
+  document.getElementById('user-chip').textContent=currentUser;
+  WORDS=[];
+  initDB();
+}
+
 /* ── INIT ── */
 function checkAutoLogin(){
-  document.getElementById('user-chip').textContent = currentUser;
+  currentUser=localStorage.getItem('wv_last_profile')||currentUser;
+  document.getElementById('user-chip').textContent=currentUser;
   initDB();
 }
 
@@ -402,19 +468,19 @@ async function initDB(){
   try{
     db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     const{data,error}=await db.from('wordvault_words').select('*').eq('user_id',currentUser).order('created_at',{ascending:false});
-    if(!error&&data) WORDS=data;
+    if(!error&&data) WORDS=data; else loadLocal();
     setSS('ok','synced');
   }catch(e){setSS('err','offline');loadLocal();}
-  renderVault();renderStats();renderQuizLeaderboard();updateStreak();
+  renderVault();renderStats();renderQuizLeaderboard();updateStreak();updateReviewBadge();maybeNotifyDue();
 }
-async function saveWords(){
-  if(db){
+async function saveWords(ids){
+  // ids: optional array of word ids to upsert. Omit to upsert everything (rare — prefer targeted saves).
+  const rows=(ids?WORDS.filter(w=>ids.includes(w.id)):WORDS).map(w=>({...w,user_id:currentUser}));
+  if(db && rows.length){
     try{
       setSS('load','saving…');
-      const{error}=await db.from('wordvault_words').upsert(
-        WORDS.map(w=>({...w,user_id:currentUser})),{onConflict:'id'}
-      );
-      if(!error)setSS('ok','saved');else setSS('err','sync err');
+      const{error}=await db.from('wordvault_words').upsert(rows,{onConflict:'id'});
+      setSS(error?'err':'ok',error?'sync err':'saved');
       setTimeout(()=>setSS('ok','synced'),2000);
     }catch(e){setSS('err','offline');}
   }
@@ -429,30 +495,44 @@ function loadLocal(){
   try{const d=JSON.parse(localStorage.getItem('wv_'+currentUser)||'[]');if(Array.isArray(d))WORDS=d;}catch(e){}
 }
 
-/* ── STREAK ── */
+/* ── STREAK (local calendar day, not UTC) ── */
 function updateStreak(){
-  const today=todayStr();
+  const today=localDay();
   const lastActive=localStorage.getItem('wv_last_'+currentUser);
   const streak=parseInt(localStorage.getItem('wv_streak_'+currentUser)||'0');
   const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
-  const yStr=yesterday.toISOString().slice(0,10);
+  const yStr=localDay(yesterday);
   if(lastActive===today) return;
-  if(lastActive===yStr||!lastActive){
-    localStorage.setItem('wv_streak_'+currentUser,streak+1);
-  } else {
-    localStorage.setItem('wv_streak_'+currentUser,'1');
-  }
+  if(lastActive===yStr||!lastActive) localStorage.setItem('wv_streak_'+currentUser,streak+1);
+  else localStorage.setItem('wv_streak_'+currentUser,'1');
   localStorage.setItem('wv_last_'+currentUser,today);
 }
 function getStreak(){return parseInt(localStorage.getItem('wv_streak_'+currentUser)||'0');}
-const todayStr=()=>new Date().toISOString().slice(0,10);
+
+/* ── NOTIFICATIONS (best-effort; browsers restrict background push without a server) ── */
+function maybeNotifyDue(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const due=WORDS.filter(isDue).length;
+  const lastNotified=localStorage.getItem('wv_notified_'+currentUser);
+  if(due>0 && lastNotified!==localDay()){
+    new Notification('WordVault',{body:`${due} word${due!==1?'s':''} due for review today`});
+    localStorage.setItem('wv_notified_'+currentUser,localDay());
+  }
+}
+async function enableReminders(){
+  if(!('Notification' in window)){showToast('Notifications not supported on this device','tr');return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){showToast('Reminders enabled','tg');maybeNotifyDue();}
+  else showToast('Permission not granted','tr');
+}
 
 /* ── VAULT ── */
 function setFilter(f){
   filterMode=f;
-  ['all','easy','medium','hard','weak'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
+  ['all','due','easy','medium','hard','weak'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
   renderVault();
 }
+const renderVaultDebounced=debounce(renderVault,150);
 function renderVault(){
   const q=document.getElementById('search-inp').value.trim().toLowerCase();
   let words=[...WORDS];
@@ -460,13 +540,41 @@ function renderVault(){
   if(filterMode==='easy') words=words.filter(w=>w.difficulty==='easy');
   else if(filterMode==='medium') words=words.filter(w=>w.difficulty==='medium');
   else if(filterMode==='hard') words=words.filter(w=>w.difficulty==='hard');
+  else if(filterMode==='due') words=words.filter(isDue);
   else if(filterMode==='weak') words=words.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6&&(w.quiz_total||0)>0);
   const body=document.getElementById('vault-body');
   if(!words.length){
     body.innerHTML=`<div class="empty">No words yet${filterMode!=='all'?' in this filter':''}.<br>${filterMode==='all'?'Go to <strong>+ Add</strong> to add your first word!':'Try a different filter.'}</div>`;
-    return;
+  } else {
+    body.innerHTML=`<div style="font-size:.68rem;color:var(--tx3);margin-bottom:.55rem">${words.length} word${words.length!==1?'s':''}</div><div class="word-grid">${words.map(w=>`<div class="word-pill diff-${w.difficulty||'easy'}" onclick="openModal('${w.id}')"><span class="diff-dot"></span>${esc(w.word)}${isDue(w)?'<span class="due-mark" title="Due for review"></span>':''}</div>`).join('')}</div>`;
   }
-  body.innerHTML=`<div style="font-size:.68rem;color:var(--tx3);margin-bottom:.55rem">${words.length} word${words.length!==1?'s':''}</div><div class="word-grid">${words.map(w=>`<div class="word-pill diff-${w.difficulty||'easy'}" onclick="openModal('${w.id}')"><span class="diff-dot"></span>${w.word}</div>`).join('')}</div>`;
+  renderDueBanner();
+  renderWOTD();
+}
+function renderDueBanner(){
+  const due=WORDS.filter(isDue).length;
+  const el=document.getElementById('due-banner');
+  el.innerHTML=due?`<div class="banner banner-b" onclick="goToReview()">
+    <div class="banner-num">${due}</div>
+    <div class="banner-info"><div class="banner-lbl">Due for review</div><div class="banner-sub">Tap to run a spaced-repetition session</div></div>
+  </div>`:'';
+}
+function renderWOTD(){
+  const el=document.getElementById('wotd-card');
+  if(!WORDS.length){el.innerHTML='';return;}
+  const seed=parseInt(localDay().replace(/-/g,''),10);
+  const w=WORDS[seed%WORDS.length];
+  el.innerHTML=`<div class="card" style="margin-bottom:.7rem;cursor:pointer" onclick="openModal('${w.id}')">
+    <div class="wotd-eyebrow">Word of the day</div>
+    <div class="wotd-word">${esc(w.word)}</div>
+    ${w.meaning?`<div class="wotd-meaning">${esc(w.meaning.slice(0,110))}${w.meaning.length>110?'…':''}</div>`:''}
+  </div>`;
+}
+function goToReview(){tab('quiz');document.getElementById('quiz-pool').value='due';const due=WORDS.filter(isDue).length;document.getElementById('quiz-count').value=Math.max(3,Math.min(10,due));}
+function updateReviewBadge(){
+  const due=WORDS.filter(isDue).length;
+  const b=document.getElementById('review-badge');
+  if(due>0){b.style.display='inline-flex';b.textContent=due>99?'99+':due;}else{b.style.display='none';}
 }
 
 /* ── MODAL ── */
@@ -476,22 +584,31 @@ function openModal(id){
   const qTotal=w.quiz_total||0,qCorrect=w.quiz_correct||0;
   const qPct=qTotal>0?Math.round(qCorrect/qTotal*100):null;
   const scoreCol=qPct===null?'var(--tx3)':qPct>=70?'var(--g)':qPct>=40?'var(--y)':'var(--r)';
+  const box=w.srs_box||0;
   document.getElementById('modal-content').innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.2rem">
       <div>
-        <div class="modal-word">${w.word}</div>
-        ${w.phonetic?`<div class="modal-phonetic">/${w.phonetic}/</div>`:''}
+        <div class="modal-word-row">
+          <div class="modal-word">${esc(w.word)}</div>
+          <button class="sound-btn" onclick="playAudio('${w.id}')" title="Pronounce">🔊</button>
+        </div>
+        ${w.phonetic?`<div class="modal-phonetic">/${esc(w.phonetic)}/</div>`:'<div style="height:.5rem"></div>'}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
-        <span class="tag ${w.difficulty==='easy'?'tg':w.difficulty==='medium'?'ty':'tr_'}">${w.difficulty||'easy'}</span>
+        <span class="tag ${w.difficulty==='easy'?'tg':w.difficulty==='medium'?'ty':'tr_'}">${esc(w.difficulty||'easy')}</span>
         ${qPct!==null?`<span class="quiz-score-badge" style="color:${scoreCol}">Quiz ${qPct}%</span>`:''}
       </div>
     </div>
-    ${w.pos?`<div class="modal-pos">${w.pos}</div>`:''}
-    ${w.meaning?`<div class="modal-section"><div class="modal-section-lbl">Meaning</div><div class="modal-meaning">${w.meaning}</div></div>`:''}
-    ${w.example?`<div class="modal-section"><div class="modal-section-lbl">Example</div><div class="modal-example">"${w.example}"</div></div>`:''}
-    ${syns.filter(s=>s.trim()).length?`<div class="modal-section"><div class="modal-section-lbl">Synonyms</div><div class="syn-list">${syns.filter(s=>s.trim()).map(s=>`<span class="syn-chip" onclick="lookupSyn('${s.trim()}')">${s.trim()}</span>`).join('')}</div></div>`:''}
-    ${w.notes?`<div class="modal-section"><div class="modal-section-lbl">Your Notes</div><div class="modal-notes">${w.notes}</div></div>`:''}
+    ${w.pos?`<div class="modal-pos">${esc(w.pos)}</div>`:''}
+    ${w.meaning?`<div class="modal-section"><div class="modal-section-lbl">Meaning</div><div class="modal-meaning">${esc(w.meaning)}</div></div>`:''}
+    ${w.example?`<div class="modal-section"><div class="modal-section-lbl">Example</div><div class="modal-example">"${esc(w.example)}"</div></div>`:''}
+    ${syns.filter(s=>s.trim()).length?`<div class="modal-section"><div class="modal-section-lbl">Synonyms</div><div class="syn-list">${syns.filter(s=>s.trim()).map(s=>`<span class="syn-chip" onclick="lookupSyn('${esc(s.trim())}')">${esc(s.trim())}</span>`).join('')}</div></div>`:''}
+    ${w.notes?`<div class="modal-section"><div class="modal-section-lbl">Your Notes</div><div class="modal-notes">${esc(w.notes)}</div></div>`:''}
+    <div class="modal-section">
+      <div class="modal-section-lbl">Review progress</div>
+      <div class="srs-track">${SRS_INTERVALS.map((_,i)=>`<div class="srs-seg${i<=box?' on':''}"></div>`).join('')}</div>
+      <div style="font-size:.68rem;color:var(--tx3);margin-top:.35rem">${isDue(w)?'Due now':'Next review '+new Date(w.next_review).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-s btn-sm" onclick="editWord('${w.id}')">Edit</button>
       <button class="btn btn-d btn-sm" onclick="deleteWord('${w.id}')">Delete</button>
@@ -508,6 +625,17 @@ function lookupSyn(word){
   document.getElementById('add-word').value=word;
   tab('add');fetchDict();
 }
+function playAudio(id){
+  const w=WORDS.find(x=>x.id===id);if(!w)return;
+  if(w.audio){const a=new Audio(w.audio);a.play().catch(()=>speakWord(w.word));}
+  else speakWord(w.word);
+}
+function speakWord(word){
+  if(!('speechSynthesis' in window)){showToast('Speech playback not supported here','tr');return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(word);u.lang='en-US';u.rate=.9;
+  speechSynthesis.speak(u);
+}
 
 /* ── ADD / EDIT WORD ── */
 let addDiff='easy';
@@ -520,37 +648,81 @@ function setDiff(d){
 }
 function onWordInput(){
   document.getElementById('fetch-status').textContent='';
+  document.getElementById('dict-candidates').innerHTML='';
+  dictCandidates=[];fetchedPhonetic='';fetchedAudio='';
+}
+function applyCandidate(i){
+  const c=dictCandidates[i];if(!c)return;
+  const sel=document.getElementById('add-pos');
+  [...sel.options].forEach(o=>{if(o.value===c.pos)sel.value=c.pos;});
+  document.getElementById('add-meaning').value=c.definition||'';
+  document.getElementById('add-example').value=c.example||'';
+  if(c.synonyms&&c.synonyms.length){
+    const existing=document.getElementById('add-synonyms').value.split(',').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('add-synonyms').value=[...new Set([...c.synonyms,...existing])].slice(0,10).join(', ');
+  }
+}
+function renderDictCandidates(){
+  const el=document.getElementById('dict-candidates');
+  if(dictCandidates.length<2){el.innerHTML='';return;}
+  el.innerHTML=`<div class="fl" style="margin-bottom:.15rem">Other definitions found — tap to use</div>
+  ${dictCandidates.map((c,i)=>`<button type="button" class="dict-cand-btn" onclick="applyCandidate(${i})"><b>${esc(c.pos||'—')}</b><br>${esc((c.definition||'').slice(0,100))}</button>`).join('')}`;
 }
 async function fetchDict(){
   const word=document.getElementById('add-word').value.trim().toLowerCase();
   if(!word){showToast('Type a word first','tr');return;}
-  document.getElementById('fetch-status').textContent='Fetching…';
+  const statusEl=document.getElementById('fetch-status');
+  statusEl.textContent='Fetching…';
   document.getElementById('fetch-btn').disabled=true;
+  document.getElementById('dict-candidates').innerHTML='';
+  dictCandidates=[];fetchedPhonetic='';fetchedAudio='';
   try{
     const res=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-    if(!res.ok)throw'not found';
+    if(!res.ok)throw new Error('not found');
     const data=await res.json();
     const entry=data[0];
     const meanings=entry.meanings||[];
-    const firstMeaning=meanings[0];
-    const def=firstMeaning?.definitions?.[0];
     if(entry.word)document.getElementById('add-word').value=entry.word;
-    if(firstMeaning?.partOfSpeech){
-      const pos=firstMeaning.partOfSpeech;
-      const sel=document.getElementById('add-pos');
-      [...sel.options].forEach(o=>{if(o.value===pos)sel.value=pos;});
-    }
-    if(def?.definition)document.getElementById('add-meaning').value=def.definition;
-    if(def?.example)document.getElementById('add-example').value=def.example;
-    const syns=[...new Set(meanings.flatMap(m=>m.synonyms||[]))].slice(0,6);
-    if(syns.length)document.getElementById('add-synonyms').value=syns.join(', ');
-    document.getElementById('fetch-status').textContent=`Found "${entry.word}"`;
+    fetchedPhonetic=entry.phonetic||(entry.phonetics||[]).find(p=>p.text)?.text||'';
+    fetchedPhonetic=fetchedPhonetic.replace(/^\//,'').replace(/\/$/,'');
+    fetchedAudio=(entry.phonetics||[]).find(p=>p.audio)?.audio||'';
+    meanings.forEach(m=>{
+      (m.definitions||[]).slice(0,3).forEach(d=>{
+        dictCandidates.push({pos:m.partOfSpeech,definition:d.definition,example:d.example,synonyms:[...(m.synonyms||[]),...(d.synonyms||[])]});
+      });
+    });
+    dictCandidates=dictCandidates.slice(0,8);
+    if(dictCandidates.length) applyCandidate(0);
+    renderDictCandidates();
+    statusEl.textContent=`Found "${entry.word}"${fetchedAudio?' — audio available':''}`;
     showToast('Dictionary data loaded','tg');
+    enrichSynonyms(word);
   }catch(e){
-    document.getElementById('fetch-status').textContent='Not found — fill manually';
+    statusEl.textContent='Not found — checking spelling…';
+    try{
+      const sres=await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&max=5`);
+      const sdata=await sres.json();
+      if(sdata&&sdata.length){
+        statusEl.innerHTML='Not found. Did you mean: '+sdata.map(s=>`<span class="syn-chip" style="display:inline-block;margin:.15rem .2rem 0 0" onclick="document.getElementById('add-word').value='${esc(s.word)}';fetchDict()">${esc(s.word)}</span>`).join('');
+      } else {
+        statusEl.textContent='Not found — fill in the fields manually';
+      }
+    }catch(e2){statusEl.textContent='Not found — fill in the fields manually';}
     showToast('Not in dictionary — fill manually','tr');
   }
   document.getElementById('fetch-btn').disabled=false;
+}
+async function enrichSynonyms(word){
+  // Datamuse (free, no key, CORS-enabled) tends to surface more synonyms than
+  // dictionaryapi.dev, so merge its results in as a supplement.
+  try{
+    const res=await fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(word)}&max=6`);
+    const data=await res.json();
+    const found=(data||[]).map(x=>x.word).filter(Boolean);
+    if(!found.length)return;
+    const existing=document.getElementById('add-synonyms').value.split(',').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('add-synonyms').value=[...new Set([...existing,...found])].slice(0,10).join(', ');
+  }catch(e){/* best-effort, ignore failures */}
 }
 async function saveWord(){
   const word=document.getElementById('add-word').value.trim().toLowerCase();
@@ -559,6 +731,7 @@ async function saveWord(){
   if(!meaning){showToast('Add a meaning','tr');return;}
   const synRaw=document.getElementById('add-synonyms').value.trim();
   const synonyms=synRaw?synRaw.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const old=editingId?WORDS.find(w=>w.id===editingId):null;
   const entry={
     id:editingId||crypto.randomUUID(),
     user_id:currentUser,
@@ -569,16 +742,16 @@ async function saveWord(){
     synonyms:synonyms.join(', '),
     notes:document.getElementById('add-notes').value.trim(),
     difficulty:addDiff,
-    phonetic:'',
-    quiz_total:0,
-    quiz_correct:0,
-    created_at:editingId?(WORDS.find(w=>w.id===editingId)?.created_at||new Date().toISOString()):new Date().toISOString(),
+    phonetic:fetchedPhonetic||old?.phonetic||'',
+    audio:fetchedAudio||old?.audio||'',
+    quiz_total:old?.quiz_total||0,
+    quiz_correct:old?.quiz_correct||0,
+    srs_box:old?.srs_box||0,
+    next_review:old?.next_review||null,
+    created_at:old?.created_at||new Date().toISOString(),
     updated_at:new Date().toISOString()
   };
   if(editingId){
-    const old=WORDS.find(w=>w.id===editingId);
-    entry.quiz_total=old?.quiz_total||0;
-    entry.quiz_correct=old?.quiz_correct||0;
     WORDS=WORDS.map(w=>w.id===editingId?entry:w);
     showToast('Word updated','tg');
   } else {
@@ -586,13 +759,15 @@ async function saveWord(){
     WORDS.unshift(entry);
     showToast(`"${word}" added to vault`,'tg');
   }
-  await saveWords();
-  clearForm();renderVault();renderStats();tab('vault');
+  await saveWords([entry.id]);
+  clearForm();renderVault();renderStats();updateReviewBadge();tab('vault');
 }
 function clearForm(){
   ['add-word','add-meaning','add-example','add-synonyms','add-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('add-pos').value='';
   document.getElementById('fetch-status').textContent='';
+  document.getElementById('dict-candidates').innerHTML='';
+  dictCandidates=[];fetchedPhonetic='';fetchedAudio='';
   setDiff('easy');
   editingId=null;
   document.getElementById('edit-mode-bar').style.display='none';
@@ -608,24 +783,40 @@ function editWord(id){
   document.getElementById('add-example').value=w.example||'';
   document.getElementById('add-synonyms').value=Array.isArray(w.synonyms)?w.synonyms.join(', '):(w.synonyms||'');
   document.getElementById('add-notes').value=w.notes||'';
+  fetchedPhonetic=w.phonetic||'';fetchedAudio=w.audio||'';
   setDiff(w.difficulty||'easy');
   document.getElementById('edit-mode-bar').style.display='block';
   document.getElementById('save-btn').textContent='Update Word';
 }
 function cancelEdit(){clearForm();}
-async function deleteWord(id){
-  if(!confirm('Delete this word?'))return;
-  WORDS=WORDS.filter(w=>w.id!==id);
-  await deleteWordDB(id);
-  closeMod();renderVault();renderStats();showToast('Deleted','tr');
+function deleteWord(id){
+  const w=WORDS.find(x=>x.id===id);if(!w)return;
+  const idx=WORDS.indexOf(w);
+  WORDS=WORDS.filter(x=>x.id!==id);
+  closeMod();renderVault();renderStats();updateReviewBadge();
+  if(pendingDelete)clearTimeout(pendingDelete.timer);
+  const el=document.getElementById('toast');
+  el.innerHTML=`Deleted "${esc(w.word)}" <button onclick="undoDelete()" style="margin-left:.6rem;background:none;border:none;color:var(--p);font-weight:700;cursor:pointer;text-decoration:underline">Undo</button>`;
+  el.className='toast tr show';
+  pendingDelete={word:w,idx,timer:setTimeout(async()=>{await deleteWordDB(w.id);pendingDelete=null;el.classList.remove('show');},4000)};
+}
+function undoDelete(){
+  if(!pendingDelete)return;
+  clearTimeout(pendingDelete.timer);
+  WORDS.splice(Math.min(pendingDelete.idx,WORDS.length),0,pendingDelete.word);
+  pendingDelete=null;
+  document.getElementById('toast').classList.remove('show');
+  renderVault();renderStats();updateReviewBadge();
+  showToast('Restored','tg');
 }
 
-/* ── QUIZ ── */
+/* ── QUIZ / REVIEW ENGINE ── */
 function getQuizPool(){
   const pool=document.getElementById('quiz-pool').value;
   let words=[...WORDS];
   if(pool==='hard') words=words.filter(w=>w.difficulty==='hard');
   else if(pool==='weak') words=words.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6);
+  else if(pool==='due') words=words.filter(isDue);
   else if(pool==='recent') words=words.slice(0,30);
   return words;
 }
@@ -635,7 +826,7 @@ function startQuiz(){
   const cnt=Math.min(parseInt(document.getElementById('quiz-count').value)||10,pool.length);
   if(cnt<3){showToast('Need at least 3 words in this pool','tr');return;}
   quizWords=shuffle(pool).slice(0,cnt);
-  quizIdx=0;quizScore=0;quizAnswered=false;
+  quizIdx=0;quizScore=0;quizAnswered=false;touchedIds=new Set();
   document.getElementById('quiz-setup-panel').style.display='none';
   document.getElementById('quiz-active-panel').style.display='block';
   document.getElementById('quiz-result-panel').style.display='none';
@@ -654,29 +845,34 @@ function showQuizQ(){
   document.getElementById('quiz-prog-fill').style.width=pct+'%';
   document.getElementById('quiz-prog-lbl').textContent=`${quizIdx}/${quizWords.length}`;
   const w=quizWords[quizIdx];
-  const mode=getQuizMode();
+  let mode=getQuizMode();
+  // Safety net: fall back to type-word if there aren't enough distinct
+  // distractors for a multiple-choice question, instead of rendering a
+  // broken quiz card.
+  if(mode==='mcq-meaning' && WORDS.filter(x=>x.id!==w.id&&x.meaning).length<3) mode='type-word';
+  if(mode==='mcq-word' && WORDS.filter(x=>x.id!==w.id).length<3) mode='type-word';
   const area=document.getElementById('quiz-card-area');
   if(mode==='mcq-meaning'){
     const wrong=shuffle(WORDS.filter(x=>x.id!==w.id&&x.meaning)).slice(0,3);
     const opts=shuffle([w,...wrong]);
     area.innerHTML=`<div class="quiz-card">
       <div class="quiz-q-label">What does this word mean?</div>
-      <div class="quiz-word">${w.word}</div>
-      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" onclick="answerMCQ('${o.id}','${w.id}',this)">${o.meaning?.slice(0,120)}</button>`).join('')}</div>
+      <div class="quiz-word">${esc(w.word)}</div>
+      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" data-id="${o.id}" onclick="answerMCQ('${o.id}','${w.id}',this)">${esc((o.meaning||'').slice(0,120))}</button>`).join('')}</div>
     </div>`;
   } else if(mode==='mcq-word'){
     const wrong=shuffle(WORDS.filter(x=>x.id!==w.id)).slice(0,3);
     const opts=shuffle([w,...wrong]);
     area.innerHTML=`<div class="quiz-card">
       <div class="quiz-q-label">Which word matches this meaning?</div>
-      <div class="quiz-meaning">${w.meaning}</div>
-      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" onclick="answerMCQ('${o.id}','${w.id}',this)">${o.word}</button>`).join('')}</div>
+      <div class="quiz-meaning">${esc(w.meaning)}</div>
+      <div class="quiz-opts">${opts.map(o=>`<button class="quiz-opt" data-id="${o.id}" onclick="answerMCQ('${o.id}','${w.id}',this)">${esc(o.word)}</button>`).join('')}</div>
     </div>`;
   } else {
     area.innerHTML=`<div class="quiz-card">
       <div class="quiz-q-label">Type the word for this meaning</div>
-      <div class="quiz-meaning">${w.meaning}</div>
-      ${w.example?`<div class="modal-example" style="margin:.6rem 0">"${w.example.replace(new RegExp(w.word,'gi'),'_____')}"</div>`:''}
+      <div class="quiz-meaning">${esc(w.meaning)}</div>
+      ${w.example?`<div class="modal-example" style="margin:.6rem 0">"${esc(w.example.replace(new RegExp(w.word,'gi'),'_____'))}"</div>`:''}
       <input type="text" class="quiz-type-input" id="quiz-type-inp" placeholder="Type the word…" autocomplete="off" autocapitalize="none" onkeydown="if(event.key==='Enter')answerType('${w.id}')">
       <div style="margin-top:.7rem"><button class="btn btn-p" onclick="answerType('${w.id}')">Submit</button></div>
     </div>`;
@@ -689,7 +885,7 @@ function answerMCQ(chosen,correct,btn){
   const isCorrect=chosen===correct;
   document.querySelectorAll('.quiz-opt').forEach(b=>{
     b.disabled=true;
-    const wid=b.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    const wid=b.getAttribute('data-id');
     if(wid===correct)b.classList.add('correct');
     else if(b===btn&&!isCorrect)b.classList.add('wrong');
   });
@@ -715,8 +911,8 @@ function showFeedback(isCorrect,correctId){
   const fb=document.getElementById('quiz-feedback');
   fb.style.display='block';
   fb.innerHTML=`<div style="padding:.6rem .9rem;border-radius:var(--rad-s);border:1px solid ${isCorrect?'var(--gbd)':'var(--rbd)'};background:${isCorrect?'var(--gbg)':'var(--rbg)'};font-size:.82rem;color:${isCorrect?'var(--g)':'var(--r)'}">
-    ${isCorrect?'Correct!':'Wrong — the answer was: <strong style="font-family:JetBrains Mono,monospace">'+( w?.word||'')+'</strong>'}
-    ${!isCorrect&&w?.meaning?`<div style="font-size:.75rem;color:var(--tx2);margin-top:.25rem">${w.meaning}</div>`:''}
+    ${isCorrect?'Correct!':'Wrong — the answer was: <strong style="font-family:JetBrains Mono,monospace">'+esc(w?.word||'')+'</strong>'}
+    ${!isCorrect&&w?.meaning?`<div style="font-size:.75rem;color:var(--tx2);margin-top:.25rem">${esc(w.meaning)}</div>`:''}
   </div>`;
   if(isCorrect)quizScore++;
   document.getElementById('quiz-nav').style.display='block';
@@ -724,8 +920,17 @@ function showFeedback(isCorrect,correctId){
 function recordAnswer(id,correct){
   const idx=WORDS.findIndex(w=>w.id===id);
   if(idx===-1)return;
-  WORDS[idx].quiz_total=(WORDS[idx].quiz_total||0)+1;
-  if(correct)WORDS[idx].quiz_correct=(WORDS[idx].quiz_correct||0)+1;
+  const w=WORDS[idx];
+  w.quiz_total=(w.quiz_total||0)+1;
+  if(correct){
+    w.quiz_correct=(w.quiz_correct||0)+1;
+    w.srs_box=Math.min((w.srs_box||0)+1,SRS_INTERVALS.length-1);
+  } else {
+    w.srs_box=0;
+  }
+  const d=new Date();d.setDate(d.getDate()+SRS_INTERVALS[w.srs_box]);
+  w.next_review=d.toISOString();
+  touchedIds.add(id);
 }
 function nextQuizQ(){
   quizIdx++;
@@ -733,7 +938,8 @@ function nextQuizQ(){
   showQuizQ();
 }
 async function endQuiz(){
-  await saveWords();
+  await saveWords([...touchedIds]);
+  touchedIds=new Set();
   document.getElementById('quiz-active-panel').style.display='none';
   const pct=Math.round(quizScore/quizWords.length*100);
   const col=pct>=80?'var(--g)':pct>=50?'var(--y)':'var(--r)';
@@ -750,7 +956,7 @@ async function endQuiz(){
       <button class="btn btn-s" onclick="backToSetup()">New Quiz</button>
     </div>
   </div>`;
-  renderStats();renderQuizLeaderboard();
+  renderStats();renderQuizLeaderboard();renderVault();updateReviewBadge();renderReview();
 }
 function backToSetup(){
   document.getElementById('quiz-setup-panel').style.display='block';
@@ -775,23 +981,56 @@ function renderQuizLeaderboard(){
   </div>`;
 }
 
+/* ── REVIEW TAB (dedicated SRS entry point) ── */
+function renderReview(){
+  const el=document.getElementById('review-body');
+  const due=WORDS.filter(isDue);
+  if(!WORDS.length){
+    el.innerHTML=`<div class="empty">Add some words first, then come back here to review them on a spaced-repetition schedule.</div>`;
+    return;
+  }
+  if(!due.length){
+    const next=[...WORDS].filter(w=>w.next_review).sort((a,b)=>new Date(a.next_review)-new Date(b.next_review))[0];
+    el.innerHTML=`<div class="empty">Nothing due right now — nice work.<br>${next?`Next review: <strong>${esc(next.word)}</strong> on ${new Date(next.next_review).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}`:'New words become due as soon as you quiz them.'}</div>`;
+    return;
+  }
+  el.innerHTML=`<div class="card" style="margin-bottom:.9rem">
+    <div class="sec" style="margin-bottom:.4rem">How review works</div>
+    <div style="font-size:.8rem;color:var(--tx2);line-height:1.6">Each word has a review level. Answer correctly and it moves up a level with a longer gap before it resurfaces; miss it and it resets so you see it again sooner.</div>
+  </div>
+  <div class="banner banner-b" style="cursor:default;margin-bottom:1rem">
+    <div class="banner-num">${due.length}</div>
+    <div class="banner-info"><div class="banner-lbl">Word${due.length!==1?'s':''} due now</div><div class="banner-sub">Runs as a quiz using only due words</div></div>
+  </div>
+  <button class="btn btn-p btn-full" onclick="reviewNow()">Start Review Session</button>`;
+}
+function reviewNow(){
+  tab('quiz');
+  document.getElementById('quiz-pool').value='due';
+  const due=WORDS.filter(isDue).length;
+  document.getElementById('quiz-count').value=Math.max(3,Math.min(15,due));
+  document.getElementById('quiz-mode').value='random';
+  startQuiz();
+}
+
 /* ── STATS ── */
 function renderStats(){
   const total=WORDS.length;
-  const today=WORDS.filter(w=>w.created_at?.slice(0,10)===todayStr()).length;
+  const today=WORDS.filter(w=>toLocalDay(w.created_at)===localDay()).length;
   const week=WORDS.filter(w=>{const d=new Date(w.created_at);const now=new Date();return(now-d)<7*86400000;}).length;
   const streak=getStreak();
   const easy=WORDS.filter(w=>w.difficulty==='easy').length;
   const medium=WORDS.filter(w=>w.difficulty==='medium').length;
   const hard=WORDS.filter(w=>w.difficulty==='hard').length;
   const weak=WORDS.filter(w=>(w.quiz_correct||0)<(w.quiz_total||1)*0.6&&(w.quiz_total||0)>=2);
+  const notifState=('Notification' in window)?Notification.permission:'unsupported';
   const el=document.getElementById('stats-body');
   el.innerHTML=`
     <div class="streak-row">
       <div class="streak-num">${streak}</div>
       <div class="streak-info">
         <div class="streak-lbl">Day Streak</div>
-        <div class="streak-sub">Keep adding words daily to grow your streak</div>
+        <div class="streak-sub">Keep adding or reviewing words daily to grow your streak</div>
       </div>
     </div>
     <div class="stats-grid">
@@ -807,18 +1046,58 @@ function renderStats(){
       <div class="stat-card"><div class="stat-val" style="color:var(--r)">${hard}</div><div class="stat-lbl">Hard</div></div>
     </div>
     ${weak.length?`<div class="sec">Weak Words — Need Practice</div>
-    <div class="weak-list">${weak.map(w=>{const pct=Math.round((w.quiz_correct||0)/(w.quiz_total)*100);return`<div class="weak-item"><span class="weak-word">${w.word}</span><span class="weak-stat">${pct}% (${w.quiz_correct}/${w.quiz_total})</span><button class="btn btn-s btn-sm" onclick="openModal('${w.id}')">View</button></div>`;}).join('')}</div>`:''}`;
+    <div class="weak-list" style="margin-bottom:.9rem">${weak.map(w=>{const pct=Math.round((w.quiz_correct||0)/(w.quiz_total)*100);return`<div class="weak-item"><span class="weak-word">${esc(w.word)}</span><span class="weak-stat">${pct}% (${w.quiz_correct}/${w.quiz_total})</span><button class="btn btn-s btn-sm" onclick="openModal('${w.id}')">View</button></div>`;}).join('')}</div>`:''}
+    <div class="sec">Reminders</div>
+    <div class="data-row">
+      <button class="btn btn-s" onclick="enableReminders()">${notifState==='granted'?'Reminders on':'Enable review reminders'}</button>
+    </div>
+    <div class="sec">Data</div>
+    <div class="data-row">
+      <button class="btn btn-s" onclick="exportData()">Export JSON</button>
+      <button class="btn btn-s" onclick="document.getElementById('import-file').click()">Import JSON</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
+    <div style="font-size:.68rem;color:var(--tx3);line-height:1.6">Profile: <strong style="color:var(--tx2)">${esc(currentUser)}</strong> — tap the chip in the header to switch. This is a local label, not a secure login.</div>`;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(WORDS,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`wordvault-${currentUser}-${localDay()}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  showToast('Exported','tg');
+}
+async function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(!Array.isArray(data))throw new Error('bad format');
+    let added=0;const newIds=[];
+    data.forEach(w=>{
+      if(!w||!w.word)return;
+      if(WORDS.find(x=>x.word===w.word))return;
+      const id=w.id&&!WORDS.find(x=>x.id===w.id)?w.id:crypto.randomUUID();
+      WORDS.unshift({...w,id,user_id:currentUser});
+      newIds.push(id);added++;
+    });
+    if(added) await saveWords(newIds);
+    renderVault();renderStats();updateReviewBadge();
+    showToast(`Imported ${added} word${added!==1?'s':''}`,'tg');
+  }catch(err){showToast('Import failed — invalid file','tr');}
+  e.target.value='';
 }
 
 /* ── TABS ── */
 function tab(id){
-  const IDS=['vault','add','quiz','stats'];
+  const IDS=['vault','add','review','quiz','stats'];
   document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',IDS[i]===id));
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.getElementById('pg-'+id).classList.add('on');
   window.scrollTo(0,0);
   if(id==='vault')renderVault();
   if(id==='stats')renderStats();
+  if(id==='review')renderReview();
 }
 
 /* ── THEME ── */
@@ -833,7 +1112,7 @@ function initTheme(){
 
 /* ── SWIPE ── */
 (function(){
-  const TABS=['vault','add','quiz','stats'];
+  const TABS=['vault','add','review','quiz','stats'];
   let sx=0,sy=0,st=0;
   document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();},{passive:true});
   document.addEventListener('touchend',e=>{
